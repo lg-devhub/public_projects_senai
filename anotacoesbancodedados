@@ -1,0 +1,253 @@
+1.
+
+SELECT nome_curso, preco_curso
+FROM tb_cursos
+WHERE preco_curso >= 1000
+ORDER BY preco_curso ASC;
+
+2.
+
+SELECT nome_aluno, idade_aluno, email_aluno
+FROM tb_alunos
+WHERE email_aluno IS NULL
+ORDER BY nome_aluno ASC;
+
+3.
+
+SELECT nome_professor, salario_professor
+FROM tb_professores
+WHERE salario_professor >= 5000 AND salario_professor <= 6000
+ORDER BY nome_professor ASC;
+
+4. 
+
+SELECT 
+COUNT(cod_professor) as total_professores,
+AVG(salario_professor) as media_salarial
+FROM tb_professores;
+
+5.
+
+SELECT cod_regiao,
+COUNT(cod_professor) as total_professores,
+AVG(salario_professor) as media_salarial
+FROM tb_professores
+GROUP BY cod_regiao;
+
+6.
+
+SELECT SUM(carga_horaria_curso) AS carga_horaria_total
+FROM tb_cursos;
+
+7.
+
+SELECT cod_cidade, COUNT(cod_aluno) as total_alunos
+FROM tb_alunos
+GROUP BY cod_cidade;
+
+8.
+
+SELECT cod_cidade,
+COUNT(cod_aluno) AS total_alunos
+FROM tb_alunos
+GROUP BY cod_cidade
+HAVING COUNT(cod_aluno) > 1;
+
+9.
+
+SELECT a.nome_aluno, c.nome_cidade
+FROM tb_alunos a
+INNER JOIN tb_cidades c ON a.cod_cidade = c.cod_cidade
+ORDER BY c.nome_cidade ASC;
+
+10.
+
+SELECT c.nome_cidade, 
+COUNT(a.cod_aluno) as total_alunos
+FROM tb_alunos a
+INNER JOIN tb_cidades c ON a.cod_cidade = c.cod_cidade
+GROUP BY a.cod_cidade
+HAVING COUNT(a.cod_aluno) > 1;
+
+11.
+
+SELECT c.nome_cidade, e.sigla_estado
+FROM tb_cidades c
+INNER JOIN tb_estados e ON c.cod_estado = e.cod_estado
+GROUP BY c.nome_cidade;
+
+12.
+
+SELECT a.nome_aluno, c.nome_curso, m.nota_matricula
+FROM tb_alunos a
+INNER JOIN tb_matriculas m ON a.cod_aluno = m.cod_aluno
+INNER JOIN tb_cursos c ON m.cod_curso = c.cod_curso;
+
+--------------------------------------------------------------------
+
+SELECT a.nome_aluno, c.nome_curso, m.nota_matricula
+FROM tb_alunos a
+INNER JOIN tb_matriculas m ON a.cod_aluno = m.cod_aluno
+INNER JOIN tb_cursos c ON m.cod_curso = c.cod_curso
+WHERE m.nota_matricula IS NOT NULL;
+
+13.
+
+SELECT a.nome_aluno, c.nome_curso, p.nome_professor
+FROM tb_matriculas m
+INNER JOIN tb_professores p ON m.cod_professor = p.cod_professor
+INNER JOIN tb_alunos a ON m.cod_aluno = a.cod_aluno
+INNER JOIN tb_cursos c ON m.cod_curso = a.cod_aluno;
+
+14.
+
+SELECT a.nome_aluno, c.nome_curso, p.nome_professor
+FROM tb_matriculas m
+INNER JOIN tb_alunos a ON m.cod_aluno = a.cod_aluno
+INNER JOIN tb_cursos c ON m.cod_curso = c.cod_curso
+INNER JOIN tb_professores p ON m.cod_professor = p.cod_professor
+WHERE a.nome_aluno = 'Carla Oliveira';
+
+15.
+
+SELECT nome_aluno, idade_aluno
+FROM tb_alunos
+WHERE idade_aluno > (SELECT AVG(idade_aluno) FROM tb_alunos);
+
+16.
+
+SELECT c.nome_curso, c.preco_curso
+FROM tb_cursos c
+WHERE c.preco_curso > (SELECT preco_curso FROM tb_cursos WHERE nome_curso = 'Programação Web');
+
+17.
+
+SELECT a.nome_aluno, m.nota_matricula
+FROM tb_matriculas m
+INNER JOIN tb_alunos a ON m.cod_aluno = a.cod_aluno
+WHERE m.nota_matricula = (SELECT MAX(nota_matricula) FROM tb_matriculas);
+
+18.
+
+UPDATE tb_alunos
+SET email_aluno = 'ana.novo@email.com'
+WHERE cod_aluno = 1;
+
+19.
+
+UPDATE tb_cursos
+SET preco_curso = (preco_curso * 1.10)
+WHERE nome_curso = 'Inteligência Artificial';
+
+20.
+
+DELETE FROM tb_matriculas WHERE cod_curso = 1;
+
+21.
+
+SELECT 
+UPPER(nome_aluno) AS nome_maiusculo,
+YEAR(data_cadastro_aluno) AS ano_cadastro
+FROM tb_alunos;
+
+22.
+
+SELECT nome_aluno, email_aluno
+FROM tb_alunos
+WHERE email_aluno LIKE '%@email.com';
+
+23.
+
+SELECT nome_aluno, data_cadastro_aluno
+FROM tb_alunos
+WHERE MONTH(data_cadastro_aluno) <= 6 AND YEAR(data_cadastro_aluno) = 2025;
+
+24.
+
+SELECT CONCAT(nome_aluno, ' - ', idade_aluno, ' anos') AS info_aluno
+FROM tb_alunos;
+
+25.
+
+SELECT nome_curso, preco_curso, CASE WHEN preco_curso > 1500 THEN 'Premium' ELSE 'Padrão'
+END AS categoria_curso
+FROM tb_cursos;
+
+26. 
+
+SELECT cod_matricula, nota_matricula,
+	CASE 
+        WHEN nota_matricula >= 7.0 THEN 'APROVADO' 
+    	WHEN nota_matricula IS NULL THEN 'SEM NOTA'
+    ELSE 'REPROVADO'
+    END AS status_aluno
+FROM tb_matriculas m;
+
+27.
+
+SELECT nome_professor, salario_professor as salario_atual,
+CASE
+	WHEN salario_professor > 5000 THEN salario_professor*1.05
+    ELSE salario_professor*1.10
+END AS novo_salario
+FROM tb_professores;
+
+28.
+
+CREATE VIEW vw_alunos_ativos AS
+SELECT a.nome_aluno, c.nome_cidade
+FROM tb_alunos a
+INNER JOIN tb_cidades c ON a.cod_cidade = c.cod_cidade
+WHERE a.ativo_aluno = 1;
+
+29.
+
+SELECT * FROM vw_alunos_ativos;
+
+30.
+
+CREATE VIEW vw_boletim AS
+SELECT a.nome_aluno, c.nome_curso, m.nota_matricula
+FROM tb_matriculas m
+INNER JOIN tb_alunos a ON m.cod_aluno = a.cod_aluno
+INNER JOIN tb_cursos c ON m.cod_curso = c.cod_curso 
+WHERE a.ativo_aluno = 1;
+
+31.
+
+SELECT * FROM vw_boletim;
+
+32.
+
+SELECT * FROM vw_boletim
+WHERE nota_matricula >=8;
+
+33.
+
+CREATE VIEW vw_cursos_caros AS
+SELECT * FROM tb_cursos c WHERE c.preco_curso > 1000;
+
+34. 
+
+SELECT * FROM vw_cursos_caros;
+
+35.
+
+DELIMITER $$
+
+CREATE PROCEDURE sp_inserir_curso(
+IN p_nome VARCHAR(100),
+IN p_carga INT, 
+IN p_preco DECIMAL(10,2)
+)
+BEGIN
+INSERT INTO tb_cursos (nome_curso, carga_horaria_curso, preco_curso)
+VALUES(p_nome, p_carga, p_preco);
+END $$
+
+DELIMITER ;
+
+
+36.
+
+CALL sp_inserir_curso('Lógica de Programação', 40, 500.00);
